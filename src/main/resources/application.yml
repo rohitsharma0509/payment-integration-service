@@ -1,0 +1,40 @@
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+
+amazon:
+  s3:
+    bucket-name:
+      s1-file: ${AMAZON_S3_S1_FILE_BUCKET_NAME}
+
+spring:
+  messages:
+    basename: ValidationMessages
+
+secretsPath: ${SECRETS_PATH}
+
+crypto:
+  public-key: ${CRYPTO_PUBLIC_KEY}
+  private-key: ${CRYPTO_PRIVATE_KEY}
+
+sftp:
+  client:
+    protocol: sftp
+    host: ${SFTP_HOST}
+    port: 22
+    username: ${SFTP_USERNAME}
+    root:
+    privateKey:
+    passphrase:
+    sessionStrictHostKeyChecking: no
+    sessionConnectTimeout: 15000
+    channelConnectedTimeout: 15000
+
+s1:
+  hashing:
+    output-path: opt/OUT/
+
+rest:
+  client:
+    operation-service: ${OPERATION_SERVICE_BASE_PATH}
+    settlement-service: ${SETTLEMENT_SERVICE_BASE_PATH}

@@ -1,0 +1,183 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.5.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+	id 'java'
+	id 'scala'
+	id 'jacoco'
+	id "org.sonarqube" version "3.0"
+}
+
+group = 'com.scb.paymentintegration'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+	flatDir {
+		dirs 'lib'
+	}
+}
+
+task testLoad(type: JavaExec) {
+    description = 'Test load the Spring Boot web service with Gatling'
+    group = 'Load Test'
+    classpath = sourceSets.test.runtimeClasspath
+    jvmArgs = [
+        "-Dlogback.configurationFile=${logbackGatlingConfig()}"
+    ]
+    main = 'io.gatling.app.Gatling'
+    args = [
+        '--results-folder', "${buildDir}/gatling-results",
+    ]
+}
+ 
+def logbackGatlingConfig() {
+ return sourceSets.test.resources.find { it.name == 'logback-gatling.xml'};
+}
+ext {
+	set('springCloudVersion', 'Hoxton.SR5')
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
+	implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.415'
+
+	compile group: 'org.bouncycastle', name: 'bcpg-jdk15on', version: '1.60'
+
+	compile group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
+	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
+	implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+	
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.4.8'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '2.3.5.RELEASE'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-devtools', version: '2.3.5.RELEASE'
+
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.4.0'
+
+	implementation group: 'org.zalando', name: 'problem-spring-web', version: '0.26.2'
+	implementation group: 'commons-io', name: 'commons-io', version: '2.8.0'
+
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	compileOnly 'org.projectlombok:lombok:1.18.16'
+	annotationProcessor 'org.projectlombok:lombok:1.18.16'
+	
+	testCompileOnly 'org.projectlombok:lombok:1.18.16'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
+
+	compile fileTree(include: ["*.jar"], dir: "lib")
+	compile group: 'com.jcraft', name: 'jsch', version: '0.1.55'
+
+	testImplementation("org.junit.platform:junit-platform-launcher:1.6.1")
+	testImplementation("org.junit.jupiter:junit-jupiter-engine:5.6.1")
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.1'
+	testImplementation('org.mockito:mockito-junit-jupiter:2.23.0')
+	testCompile 'org.mockito:mockito-core:2.21.0'
+	compile 'org.apache.maven.plugins:maven-surefire-plugin:2.21.0'
+	testCompile 'org.junit.platform:junit-platform-runner:1.2.0'
+	testCompile 'org.junit.vintage:junit-vintage-engine:5.2.0'
+
+	testImplementation('de.flapdoodle.embed:de.flapdoodle.embed.mongo')
+	testImplementation 'io.cucumber:cucumber-java:6.8.1'
+	testImplementation 'io.cucumber:cucumber-junit:6.8.1'
+	testImplementation 'io.cucumber:cucumber-spring:6.8.1'
+	implementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.4.1'
+
+	implementation 'org.springframework.kafka:spring-kafka:2.5.7.RELEASE'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+}
+def jacocoExclude = ['**/view/**','**/config/**','**/aop/logging/**']
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+
+test {
+	useJUnitPlatform()
+	jacoco {
+		finalizedBy jacocoTestReport
+		destinationFile = file("build/jacoco/sonar.exec")
+	}
+	jacocoTestReport {
+		dependsOn test
+	}
+	testLogging {
+		events 'PASSED', 'FAILED', 'SKIPPED'
+	}
+}
+
+jacocoTestReport {
+	reports {
+		xml.enabled true
+		csv.enabled true
+		html.destination file("${buildDir}/jacocoHtml")
+	}
+	afterEvaluate {
+		getClassDirectories().setFrom(classDirectories.files.collect {
+			fileTree(dir: it, exclude: coverageExcludes())
+		})
+	}
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			limit {
+				minimum = 0.30
+			}
+		}
+	}
+	afterEvaluate {
+		getClassDirectories().setFrom(classDirectories.files.collect {
+			fileTree(dir: it, exclude: coverageExcludes())
+		})
+	}
+}
+
+check.dependsOn jacocoTestCoverageVerification
+
+
+static def coverageExcludes() {
+	return ["com/scb/paymentintegration/client/SftpClient.java",
+			"com/scb/paymentintegration/config/security/**",
+			"com/scb/paymentintegration/config/sftp/**",
+			"com/scb/paymentintegration/config/swagger/**",
+			"com/scb/paymentintegration/constants/**",
+			"com/scb/paymentintegration/dto/**",
+			"com/scb/paymentintegration/enums/**",
+			"com/scb/paymentintegration/exception/**",
+			"com/scb/paymentintegration/service/impl/CryptoServiceImpl.java",
+			"com/scb/paymentintegration/service/impl/CustomHashValidation.java",
+			"com/scb/paymentintegration/RiderPaymentIntegrationApplication.java",
+			"com/scb/paymentintegration/aop/logging/**"]
+}
+
+sonarqube {
+	properties {
+		property 'sonar.coverage.exclusions', coverageExcludes()
+	}
+}
+
+configurations {
+	cucumberRuntime {
+		extendsFrom testImplementation
+	}
+}
+task cucumber() {
+	dependsOn assemble, testClasses
+	doLast {
+		javaexec {
+			main = "io.cucumber.core.cli.Main"
+			classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+			args = ['--plugin', 'pretty', '--glue', 'com.scb.paymentintegration.bdd', 'src/test/resources']
+		}
+	}
+}

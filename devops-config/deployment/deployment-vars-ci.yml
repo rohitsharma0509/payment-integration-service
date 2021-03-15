@@ -1,0 +1,18 @@
+---
+# Source: environment/templates/devops-config/deployment/deployment-vars-{{env}}.yml
+# This file was generated at  using generator Version: 
+
+DEPLOYMENT:
+    ENV: ci
+    NAMESPACE: ci
+    CONFIG_FILES:
+        - "src/main/resources/config/payment-integration-service.default.yaml"
+        - "src/main/resources/config/payment-integration-service.ci.yaml"
+
+APP:
+    CONTAINER:
+      MEMORY:
+        REQUEST: 1Gi
+    ENVIRONMENT:
+      - KEY: logs.Dir
+        VALUE: "/apps/logs/ci/payment-integration-service/"

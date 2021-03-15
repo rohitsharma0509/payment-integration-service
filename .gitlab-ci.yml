@@ -1,0 +1,13 @@
+---
+# Source: java-gradle-service-eks/templates/gitlab-ci.yml
+# This file was generated at 08/12/2020 10:57:24 using generator Version: 1.0
+
+include:
+  # Include the archetype from the central repo
+  - project: 'rider-devops/devops-pipeline/pipeline-orchestrator'
+    ref: '1.0'
+    # ref: feature/pipeline-trigger
+    file: '/archetypes/java/java-gradle-service-eks/1.0/main.gitlab-ci.yml'
+    
+  # Include the application specific configuration from local repo
+  - local: '/devops-config/application-devops-config.yml'

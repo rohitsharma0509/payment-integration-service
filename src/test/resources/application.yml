@@ -1,0 +1,40 @@
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+
+amazon:
+  s3:
+    bucket-name:
+      s1-file: rider-internal-content-dev
+
+spring:
+  messages:
+    basename: ValidationMessages
+
+crypto:
+  public-key: crypto-keys/uat/SCB_ERP_QAS.gpg
+  private-key: crypto-keys/uat/RBH_KEY_UAT.asc
+
+secretsPath: src/test/resources/test-files
+
+sftp:
+  client:
+    protocol: sftp
+    host: sftpdev.scb.co.th
+    port: 22
+    username: rbhusr
+    root:
+    privateKey:
+    passphrase:
+    sessionStrictHostKeyChecking: no
+    sessionConnectTimeout: 15000
+    channelConnectedTimeout: 15000
+
+s1:
+  hashing:
+    output-path: opt/OUT/
+
+rest:
+  client:
+    operation-service: https://operations-service.apps.dev.riderplatform.com
+    settlement-service: https://settlement-service.api-dev.riderplatform.com

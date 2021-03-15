@@ -1,0 +1,32 @@
+---
+# Source: java-gradle-service-eks/templates/devops-config/deployment/deployment-vars.yml
+# This file was generated at 08/12/2020 10:57:24 using generator Version: 1.0
+
+DEPLOYMENT: 
+    SERVICE_ACCOUNT: svc-rider-app
+    CI_ENV: ci 
+    CI_NAMESPACE: ci
+
+APP:  
+    REPLICA: 1
+    CONTAINER:
+      MEMORY:
+        REQUEST: 1Gi
+        LIMIT: 1Gi
+      CPU:
+        REQUEST: 0.5
+        LIMIT: 0.5
+    LIVENESS_PROBE:
+      HTTP_GET_PATH: /actuator/health
+      INITIAL_DELAY_SECONDS: 45
+      TIMEOUT_SECONDS: 10
+      FAILURE_THRESHOLD: 5
+      PERIOD_SECONDS: 60
+      SUCCESS_THRESHOLD: 1
+    READINESS_PROBE:
+      HTTP_GET_PATH: /actuator/health
+      INITIAL_DELAY_SECONDS: 30
+      TIMEOUT_SECONDS: 10
+      FAILURE_THRESHOLD: 5
+      PERIOD_SECONDS: 60
+      SUCCESS_THRESHOLD: 1

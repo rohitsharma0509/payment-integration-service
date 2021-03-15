@@ -1,0 +1,49 @@
+
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.metadata
+Servers
+.idea
+.gradle
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+###############################
+logs
+/Servers/
+/*.log
+/application.log
+/application.log.*
+/bin/
+/memory-measurer-0.1.0-SNAPSHOT.jar
+/download_testfile
+
+### VS Code ###
+.vscode/
+
+### MAC Book ###
+.DS_Store
+
+gradle/**
+gradlew
+gradlew.bat

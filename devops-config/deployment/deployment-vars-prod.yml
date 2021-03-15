@@ -1,0 +1,29 @@
+---
+# Source: environment/templates/devops-config/deployment/deployment-vars-{{env}}.yml
+# This file was generated at  using generator Version: 
+
+DEPLOYMENT:
+    ENV: prod
+    NAMESPACE: prod
+    CONFIG_FILES:
+        - "src/main/resources/config/payment-integration-service.default.yaml"
+        - "src/main/resources/config/payment-integration-service.prod.yaml"
+
+APP:
+    REPLICA: 3
+    HPA:
+      ENABLED: 1
+      MIN_REPLICA: 3
+      MAX_REPLICA: 6
+      CPU_UTILIZATION: 65
+      MEMORY_UTILIZATION: 80
+    CONTAINER:
+      MEMORY:
+        REQUEST: 1Gi
+        LIMIT: 1536Mi
+      CPU:
+        REQUEST: 0.5
+        LIMIT: 1
+    ENVIRONMENT:
+      - KEY: logs.Dir
+        VALUE: "/apps/logs/prod/payment-integration-service/"

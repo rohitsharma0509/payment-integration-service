@@ -1,0 +1,15 @@
+---
+# Source: environment/templates/devops-config/deployment/deployment-vars-{{env}}.yml
+# This file was generated at  using generator Version: 
+
+DEPLOYMENT:
+    ENV: qa
+    NAMESPACE: qa
+    CONFIG_FILES:
+        - "src/main/resources/config/payment-integration-service.default.yaml"
+        - "src/main/resources/config/payment-integration-service.qa.yaml"
+
+APP:
+    ENVIRONMENT:
+      - KEY: logs.Dir
+        VALUE: "/apps/logs/qa/payment-integration-service/"

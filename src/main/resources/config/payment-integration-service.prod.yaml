@@ -1,0 +1,7 @@
+OPERATION_SERVICE_BASE_PATH: "http://operations-service.prod:8080"
+SETTLEMENT_SERVICE_BASE_PATH: "http://settlement-service.prod:8080"
+SFTP_HOST: "sftp.scb.co.th"
+SFTP_USERNAME: "rbhusr"
+CRYPTO_PUBLIC_KEY: "crypto-keys/prod/SCB_ERP_PROD.gpg"
+CRYPTO_PRIVATE_KEY: "crypto-keys/prod/RBH_KEY_PROD.asc"
+AMAZON_S3_S1_FILE_BUCKET_NAME: "rider-internal-content-prod"

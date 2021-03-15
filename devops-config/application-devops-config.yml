@@ -1,0 +1,41 @@
+---
+# Source: java-gradle-service-eks/templates/devops-config/application-devops-config.yml
+# This file was generated at 08/12/2020 10:57:24 using generator Version: 1.0
+
+variables:
+    ## This corresponds to the central pipeline archetype. It should be same as specified in .gitlab-ci.yml. It is used to select the correspond archetype artifacts from pipeline-helper.
+    APP_PIPELINE_ARCHETYPE: java-gradle-service-eks
+
+    ## This is the Archetype category 
+    APP_PIPELINE_ARCHETYPE_CATEGORY: java    
+
+    ## This is the Archetype versionm corresponding to the pipeline archetype of the service. It should be same as specified in .gitlab-ci.yml. It is used to select the correspond archetype artifacts from pipeline-helper.
+    APP_ARCHETYPE_VERSION: '1.0'
+    
+    ## This contains the list of overrides that individual service can override. For a possible list of all configuration see below:
+    ## Application overrides
+    #########################################################################
+    ## This is the name by which deployment in kubernetes will be created. Typically, this is the service name without special character/ spaces.
+    APP_SERVICE_NAME: payment-integration-service
+
+    ## This is the service port on which application is running. The same is exposed in docker container.
+    APP_SERVICE_PORT: 8080
+    ## This is the CMDB ID of the service used to identfy uniquely. It is used to generate the unique soanr project Id.
+    APP_SERVICE_ID: payment-integration-service
+    ## This corresponds to the Gitlab project Id of the performance test repo which will execute the performance test to test this service. If performance test stage is enabled, the performance test pipeline is triggered.  
+    APP_PERFORMANCE_TEST_PROJECT: 'rider-qa/payment-integration-service-performance-automation'
+    ## This denotes the threshold percentage for permission test results, below which we mark pipeline as failure.
+    APP_PERFORMANCE_TEST_FAIL_PERCENTAGE_THRESHOLD: 10
+    ## This corresponds to the Gitlab project Id of the automation/inetgration test repo which will execute the integartion test to test this service. If functional test stage is enabled, the functional test pipeline is triggered.  
+    APP_FUNCTIONAL_TEST_PROJECT: 'rider-qa/payment-integration-service-automation'
+    #APP_SYSTEM_TEST_TEST_PROJECT_ID:
+
+
+    ## This is the path of pom.xml for the main module. Typically, it will be root. But for a spring multi-module project, it could be different.
+    APP_MAIN_MODULE: ./
+    ## This is the app health check endpoint. This is used in pipeline healthcheck stage. This response to this should be UP.
+    APP_HEALTHCHECK_ENDPOINT: actuator/health
+    APP_INGRESS_ENABLED: 'true'
+    APP_INGRESS_PATH: payment-integration-service
+
+    JOB_TOGGLE_UNIT_TEST: '1'

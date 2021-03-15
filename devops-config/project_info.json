@@ -1,0 +1,62 @@
+[{
+    "serviceName": "payment-integration-service",
+    "archeTypeCategory": "java",     
+    "archeType": "java-gradle-service-eks",
+    "archeTypeVersion": "1.0",
+    "environments": ["ci", "dev", "qa", "preprod", "prod"],
+    "metadata": {
+        "serviceId": "payment-integration-service",
+        "ciNamespace": "ci",
+        "ciEnv": "ci",
+        "replica": "1",
+        "healthCheckEndPoint": "actuator/health",
+        "serviceAccount": "svc-rider-app",
+        "performanceProjectId": "2751",
+        "performanceFailPercentageThreshold": "10",
+        "functionalProjectId": "2750",
+        "appServicePort": "8080",
+        "rootModuleDir": "./",
+        "ingressEnabled": "true",
+        "ingressPath": "payment-integration-service",
+        "livenessProbe": {
+            "httpGetPath": "/actuator/health",
+            "failureThreshold": "5",
+            "initialDelaySeconds": "45",
+            "periodSeconds": "60",
+            "successThreshold": "1", 
+            "timeoutSeconds": "10"
+        },
+        "readinessProbe": {
+            "httpGetPath": "/actuator/health",
+            "failureThreshold": "5",
+            "initialDelaySeconds": "30",
+            "periodSeconds": "60",
+            "successThreshold": "1", 
+            "timeoutSeconds": "10"
+        },
+        "configFiles": [
+            "src/main/resources/config/{{serviceName}}.default.properties",
+            "src/main/resources/config/{{serviceName}}.{{env}}.properties"
+        ],
+        "containerMinMemory": "1Gi",
+        "containerMaxMemory": "1Gi",
+        "containerMinCPU": "0.5",
+        "containerMaxCPU": "0.5",
+        "namespace": "{{env}}",
+        "addtionalServiceExposedPorts": [],
+        "additionalContainerExposedPorts": [],
+        "environmentVars": [
+            {
+                "key": "logs.Dir",
+                "value": "/apps/logs/{{env}}/{{serviceName}}/"
+            }]
+    },
+    "metadata_ci" : {
+        "containerMinMemory": "1Gi"
+    },
+    "autoPush": {
+        "projectId": "2717",
+        "branch": "feature/onboarding",
+        "clone_branch" : "features/rider-profile-license-integration"
+    } 
+}]
