@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 public class S1FileUtils {
@@ -38,23 +41,32 @@ public class S1FileUtils {
     }
 
     public static String toS1FormattedAmount(Double d) {
-        log.info("Converting double to s1 formatted amount (v13v3): {}", d);
+        log.debug("Converting double to s1 formatted amount (v13v3): {}", d);
         DecimalFormat df = new DecimalFormat(S1_AMOUNT_FORMAT);
         return df.format(d).replace(".", StringUtils.EMPTY);
     }
 
     public static Double toFormattedDouble(String amount) {
-        log.info("Converting amount (v13v3) to double: {}", amount);
+        log.debug("Converting amount (v13v3) to double: {}", amount);
         String beforeDecimalStr = amount.substring(0, 13);
         String afterDecimalStr = amount.substring(13, 16);
         String doubleStr = beforeDecimalStr.concat(".").concat(afterDecimalStr);
         return Double.parseDouble(doubleStr);
     }
     public static Double toFormattedDoubleV14V4(String amount) {
-        log.info("Converting amount (V14V4) to double: {}", amount);
+        log.debug("Converting amount (V14V4) to double: {}", amount);
         String beforeDecimalStr = amount.substring(0, 14);
         String afterDecimalStr = amount.substring(14, 18);
         String doubleStr = beforeDecimalStr.concat(".").concat(afterDecimalStr);
         return Double.parseDouble(doubleStr);
+    }
+
+    public static String getFormattedProcessingDate(String format) {
+        LocalDate localDate = LocalDate.now(Constants.BKK_ZONE_ID);
+        if(LocalTime.now(Constants.BKK_ZONE_ID).isAfter(LocalTime.of(21,0,0,0))){
+            localDate = localDate.plusDays(1);
+        }
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
+        return dtf.format(localDate);
     }
 }

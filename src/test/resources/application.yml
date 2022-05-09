@@ -10,6 +10,8 @@ amazon:
 spring:
   messages:
     basename: ValidationMessages
+  application:
+    name: payment-incentive-service
 
 crypto:
   public-key: crypto-keys/uat/SCB_ERP_QAS.gpg
@@ -38,3 +40,7 @@ rest:
   client:
     operation-service: https://operations-service.apps.dev.riderplatform.com
     settlement-service: https://settlement-service.api-dev.riderplatform.com
+
+DIST_TRACER_ENDPOINT: ""
+COMPANY: ""
+PROJECT_NAME: ""

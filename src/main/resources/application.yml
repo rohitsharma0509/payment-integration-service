@@ -10,6 +10,8 @@ amazon:
 spring:
   messages:
     basename: ValidationMessages
+  application:
+    name: payment-integration-service
 
 secretsPath: ${SECRETS_PATH}
 
@@ -38,3 +40,21 @@ rest:
   client:
     operation-service: ${OPERATION_SERVICE_BASE_PATH}
     settlement-service: ${SETTLEMENT_SERVICE_BASE_PATH}
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 600000
+        loggerLevel: basic
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health
+  metrics:
+    web:
+      server:
+        auto-time-requests: true

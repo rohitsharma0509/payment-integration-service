@@ -158,8 +158,8 @@ class SftpServiceImplTest {
             when(settlementFeignClient.saveReturnFileResponse(any(ReturnFileResult.class))).thenThrow(new NullPointerException());
             boolean result = sftpServiceImpl.pollOutputPath();
             assertTrue(result);
-            verify(channelSftp, times(EXPECTED_1_TIME)).cd(OUTPUT_PATH);
-            verify(sftpClient, times(EXPECTED_1_TIME)).disconnect(any(ChannelSftp.class));
+            verify(channelSftp, times(EXPECTED_2_TIME)).cd(OUTPUT_PATH);
+            verify(sftpClient, times(2)).disconnect(any(ChannelSftp.class));
         }
     }
 
@@ -184,9 +184,9 @@ class SftpServiceImplTest {
             when(settlementFeignClient.saveReturnFileResponse(any(ReturnFileResult.class))).thenReturn(Boolean.TRUE);
             boolean result = sftpServiceImpl.pollOutputPath();
             assertTrue(result);
-            verify(channelSftp, times(EXPECTED_1_TIME)).cd(OUTPUT_PATH);
+            verify(channelSftp, times(3)).cd(OUTPUT_PATH);
             verify(channelSftp, times(EXPECTED_2_TIME)).rename(anyString(), anyString());
-            verify(sftpClient, times(EXPECTED_1_TIME)).disconnect(any(ChannelSftp.class));
+            verify(sftpClient, times(3)).disconnect(any(ChannelSftp.class));
         }
     }
 

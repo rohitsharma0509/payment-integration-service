@@ -118,12 +118,8 @@ public class SftpServiceImpl implements SftpService {
     @Override
     public boolean pollOutputPath() {
         BatchConfigurationDto batchConfig = operationServiceClient.getBatchConfiguration();
-        ChannelSftp channelSftp = sftpClient.connect();
         try {
-            log.info("current directory : {}", channelSftp.pwd());
-            channelSftp.cd(batchConfig.getS1OutputFolderFilePath());
-            log.info("Current directory {}, Moved to outputPath {}", channelSftp.pwd(), batchConfig.getS1OutputFolderFilePath());
-            List<ChannelSftp.LsEntry> list = channelSftp.ls(batchConfig.getCompanyId().concat("*.ctrl"));
+            List<ChannelSftp.LsEntry> list = getListOfFilesToProcess(batchConfig);
             if (CollectionUtils.isEmpty(list)) {
                 log.info("There are no ctrl files available on output path {}", batchConfig.getS1OutputFolderFilePath());
                 return false;
@@ -134,27 +130,40 @@ public class SftpServiceImpl implements SftpService {
                 log.info("processing ctrlFileName: {}", ctrlFileName);
                 String returnFileName = CommonUtils.replaceLast(ctrlFileName, FileType.CTRL.getExtension(), FileType.TXT_GPG.getExtension());
                 log.info("return file name: {}", returnFileName);
-                parse(channelSftp, ctrlFileName, returnFileName);
+                parse(ctrlFileName, returnFileName, batchConfig.getS1OutputFolderFilePath());
             }
             return Boolean.TRUE;
         } catch(Exception e) {
             log.error("Exception while polling return file path:  {}", e);
-        } finally {
-            sftpClient.disconnect(channelSftp);
         }
         return Boolean.FALSE;
     }
 
-    private void move(ChannelSftp channelSftp, String toPath, List<String> fileNames) throws SftpException {
-        for(String fileName : fileNames) {
-            move(channelSftp, toPath, fileName);
+    private List<ChannelSftp.LsEntry> getListOfFilesToProcess(BatchConfigurationDto batchConfig) throws SftpException {
+        ChannelSftp channelSftp = sftpClient.connect();
+        try {
+            log.info("current directory : {}", channelSftp.pwd());
+            channelSftp.cd(batchConfig.getS1OutputFolderFilePath());
+            log.info("Current directory {}, Moved to outputPath {}", channelSftp.pwd(), batchConfig.getS1OutputFolderFilePath());
+            return channelSftp.ls(batchConfig.getCompanyId().concat("*.ctrl"));
+        } finally {
+            sftpClient.disconnect(channelSftp);
         }
     }
 
+    private void move(String toPath, List<String> fileNames, String configuredReturnFilePath) throws SftpException {
+        ChannelSftp channelSftp = sftpClient.connect();
+        channelSftp.cd(configuredReturnFilePath);
+        for(String fileName : fileNames) {
+            move(channelSftp, toPath, fileName);
+        }
+        sftpClient.disconnect(channelSftp);
+    }
+
     private void move(ChannelSftp channelSftp, String toPath, String fileName) throws SftpException {
-        String currentDir = channelSftp.pwd();
         if(!StringUtils.isEmpty(fileName)) {
-            log.info("Current directory {}, Moving ctrlFileName {} to {} folder", currentDir, fileName, toPath);
+            String currentDir = channelSftp.pwd();
+            log.info("Current directory {}, Moving {} to {} folder", currentDir, fileName, toPath);
             channelSftp.rename(fileName, getDestinationPath(currentDir, toPath, fileName));
         }
     }
@@ -165,29 +174,31 @@ public class SftpServiceImpl implements SftpService {
         return path.toString();
     }
 
-    private void parse(ChannelSftp channelSftp, String ctrlFileName, String returnFileName) throws SftpException {
+    private void parse(String ctrlFileName, String returnFileName, String configuredReturnFilePath) throws SftpException {
         List<String> files = Arrays.asList(ctrlFileName, returnFileName);
         try {
-            ReturnFileResult result = parseEncryptedReturnFile(channelSftp, returnFileName);
+            ReturnFileResult result = parseEncryptedReturnFile(returnFileName, configuredReturnFilePath);
             if (Objects.nonNull(result)) {
                 boolean isSaved = settlementFeignClient.saveReturnFileResponse(result);
                 log.info("isSaved to settlement service: {}", isSaved);
                 if (isSaved) {
-                    move(channelSftp, PROCESSED, files);
+                    move(PROCESSED, files, configuredReturnFilePath);
                 }
             }
         } catch(EmptyReturnFileException e) {
             log.info("{}, file name {}", e.getMessage(), returnFileName);
-            move(channelSftp, PROCESSED, files);
+            move(PROCESSED, files, configuredReturnFilePath);
         } catch(InvalidDataException e) {
             e.getMessages().forEach(log::error);
-            move(channelSftp, ERROR, files);
+            move(ERROR, files, configuredReturnFilePath);
         } catch(Exception e) {
             log.error("Exception while parsing return file: {}, {}", returnFileName, e);
         }
     }
 
-    private ReturnFileResult parseEncryptedReturnFile(ChannelSftp channelSftp, String returnFileName) throws IOException, SftpException {
+    private ReturnFileResult parseEncryptedReturnFile(String returnFileName, String configuredReturnFilePath) throws IOException, SftpException {
+        ChannelSftp channelSftp = sftpClient.connect();
+        channelSftp.cd(configuredReturnFilePath);
         try (
             InputStream encryptedFileInputStream = channelSftp.get(returnFileName);
             InputStream decryptedFileInputStream = cryptoService.decrypt(encryptedFileInputStream, privateKeyPath, passphrase.toCharArray());
@@ -210,7 +221,10 @@ public class SftpServiceImpl implements SftpService {
                     paymentResults.add(ReturnPaymentResult.of(line));
                 }
             }
+            log.info("received return file for batchId {}, noOfRiders {}", header.getBatchReferenceNumber(), paymentResults.size());
             return ReturnFileResult.of(header, paymentResults, trailer);
+        } finally {
+            sftpClient.disconnect(channelSftp);
         }
     }
 }

@@ -48,7 +48,7 @@ public class S1DebitEntry implements S1FileEntry {
         StringBuilder debitDetailsSb = new StringBuilder("");
         debitDetailsSb.append(recordType);//record type
         debitDetailsSb.append(productCode);//Product code
-        debitDetailsSb.append(CommonUtils.getFormattedCurrentDate(Constants.DATE_FORMAT_YYYYMMDD));//Date of processing
+        debitDetailsSb.append(S1FileUtils.getFormattedProcessingDate(Constants.DATE_FORMAT_YYYYMMDD));//Date of processing
         debitDetailsSb.append(S1FileUtils.toS1FormattedString(rhDebitAccountNumber, 25));//Robinhood account number
         debitDetailsSb.append(accountType);//Account Type of Debit Account ("0"+4th char)
         debitDetailsSb.append(debitBranchCode);//Debit Branch Code ("0"+1-3 char)
